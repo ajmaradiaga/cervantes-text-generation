@@ -12,6 +12,6 @@ This project has the following dependencies:
 - Numpy
 - Tensorflow 1.0
 
-### Run
+### Run 
 
 Execute the [Jupyter](http://jupyter.org/install.html) notebook - mlnd-cervantes.ipynb
