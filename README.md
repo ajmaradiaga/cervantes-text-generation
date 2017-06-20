@@ -10,6 +10,10 @@ RNNs are [very effective](http://karpathy.github.io/2015/05/21/rnn-effectiveness
 
 In order to generate text, we will look at a class of Neural Network where connections between units form a directed cycle, called Recurrent Neural Network (RNNs). RNNs use an internal memory to process sequences of elements and is able to learn from the syntactic structure of text. Our model will be able to generate text based on the text we train it with.
 
+### Datasets
+
+The datasets used in this repository are included in the dataset folder. It is not necessary to do any manual preprocessing of data as the files included are already clean.
+
 ### Install
 
 Highly recommend installing [Anaconda](https://www.continuum.io/downloads). Anaconda conveniently installs Python, the Jupyter Notebook, and other commonly used packages for scientific computing and data science.
@@ -20,6 +24,38 @@ This project has the following dependencies:
 - Numpy
 - Tensorflow 1.0
 
+After installing Anaconda, open a terminal window and navigate to the directory where the repository is in your local machine.
+
+
+```bash
+cd /path/to/cervantes
+```
+
+If you want to install the packages manually:
+```bash
+conda create --name cervantes -y python=3 numpy
+source activate cervantes
+pip install https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.0.0-cp36-cp36m-linux_x86_64.whl
+jupyter notebook
+```
+
+Alternatively, you can use the conda environment file included in the repository
+```bash
+conda env create -f cervantes.yml
+jupyter notebook
+```
+
 ### Run 
 
-Execute the [Jupyter](http://jupyter.org/install.html) notebook - mlnd-cervantes.ipynb
+Open the [Jupyter](http://jupyter.org/install.html) notebook - mlnd-cervantes.ipynb
+
+### Cleanup
+
+To remove the environment just run
+
+```bash
+conda remove --name cervantes --all
+```
+
+
+
