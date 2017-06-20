@@ -49,12 +49,13 @@ jupyter notebook
 
 Open the [Jupyter](http://jupyter.org/install.html) notebook - mlnd-cervantes.ipynb
 
-### Cleanup
+### Clean up
 
 To remove the environment just run
 
 ```bash
-conda remove --name cervantes --all
+source deactivate
+conda remove --name cervantes --all -y
 ```
 
 
