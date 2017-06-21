@@ -11790,9 +11790,9 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Domain-Background">Domain Background<a class="anchor-link" href="#Domain-Background">&#182;</a></h2><p><a href="https://en.wikipedia.org/wiki/Deep_learning">Deep Learning</a> is a new area of <a href="https://en.wikipedia.org/wiki/Machine_learning">Machine Learning</a>, which has attracted a lot of attention lately due to the amazing results produced by Deep Learning models. With Deep Learning, it is now possible for an algorithm to predict things, classify images (objects) with great accuracy, detect fraudulent transactions, generate image, sound and text. These are tasks that were previously not possible to achieve by an algorithm and now perform better than a human.</p>
 <p>In this project we will focus on Text Generation. Text Generation is part of <a href="https://en.wikipedia.org/wiki/Natural_language_processing">Natural Language Processing</a> and can be used to <a href="http://www.jmlr.org/proceedings/papers/v32/graves14.pdf">transcribe speech to text</a>, perform <a href="http://arxiv.org/abs/1409.3215">machine translation</a>, generate handwritten text, image captioning, generate new blog posts or news headlines.</p>
+<p>In order to generate text, we will look at a class of Neural Network where connections between units form a directed cycle, called Recurrent Neural Network (RNNs). RNNs use an internal memory to process sequences of elements and is able to learn from the syntactic structure of text. Our model will be able to generate text based on the text we train it with.</p>
 <p>RNNs are <a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">very effective</a> when understanding sequence of elements and have been used in the past to generate text. I will use a Recurrent Neural Network to generate text inspired on the works of Cervantes.</p>
 <p><img src="images/basic_unrolled_RNN.png" alt="Basic RNN -&gt; Unrolled RNN"></p>
-<p>In order to generate text, we will look at a class of Neural Network where connections between units form a directed cycle, called Recurrent Neural Network (RNNs). RNNs use an internal memory to process sequences of elements and is able to learn from the syntactic structure of text. Our model will be able to generate text based on the text we train it with.</p>
 
 </div>
 </div>
@@ -11802,12 +11802,38 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Problem-Statement">Problem Statement<a class="anchor-link" href="#Problem-Statement">&#182;</a></h2><p><a href="https://en.wikipedia.org/wiki/Miguel_de_Cervantes">Miguel de Cervantes Saavedra</a>, was a Spanish writer who is regarded as the greater writer in Spanish language. Famous for his novel, <a href="https://en.wikipedia.org/wiki/Don_Quixote">Don Quixote</a>, considered one of the best fiction novels ever written.</p>
+<h2 id="Problem-Statement">Problem Statement<a class="anchor-link" href="#Problem-Statement">&#182;</a></h2><p><a href="https://en.wikipedia.org/wiki/Miguel_de_Cervantes">Miguel de Cervantes Saavedra</a>, was a Spanish writer who is regarded as the greatest writer in Spanish language. Famous for his novel, <a href="https://en.wikipedia.org/wiki/Don_Quixote">Don Quixote</a>, considered one of the best fiction novels ever written.</p>
 <p>Unfortunately, Cervantes passed away 500 years ago and he will not be publishing new novels any time soon…. But, wouldn’t it be great if we could generate some text inspired on Don Quixote and other novels he published?</p>
 <p>To solve our problem, we can use text from novels written by Cervantes in combination with the incredible power of Deep Learning, in particular RNNs, to generate text. Our deep learning model will be trained on existing Cervantes works and will output new text, based on the internal representation of the text it was trained on, in the Neural Network.</p>
 <p><img src="images/lstm_cell.png" alt="LSTM Cell"></p>
 <p>LSTM Cell</p>
 <p>For our model to learn, we will use a special type of RNN called LSTMs (Long Short Term Memory), capable of learning long-term dependencies. LSTM can use its memory to generate complex, <a href="https://arxiv.org/pdf/1308.0850.pdf">realistic sequences</a> containing long-range structure, just like the sentences that we want to generate. It will be able to remember information for a period of time, which will help at generating text of better quality.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Metrics">Metrics<a class="anchor-link" href="#Metrics">&#182;</a></h2><p>The purpose of this project, is to create a model that will be able to generate text inspired in novels written by Miguel de Cervantes.</p>
+<p>The performance of our model will be measure by:</p>
+<ul>
+<li><p><a href="https://en.wikipedia.org/wiki/Perplexity">Perplexity</a> is a commonly used evaluation metric when generating text. Perplexity tells us how many words is the model considering as an output, having a perplexity of 3 means that the model could choose 3 words at an equally likely probability, we want our perplexity be as low as possible since lower choice corresponds to a higher likelihood of choosing the actually correct one.</p>
+<p>The typical measure reported in the papers is average per-word perplexity (often just called perplexity), which is equal to</p>
+<p>$$e^{-\frac{1}{N}\sum_{i=1}^{N} \ln p_{\text{target}_i}} = e^{\text{loss}}$$</p>
+<p>Our goal is to achieving a <strong>perplexity of less than 3.</strong> Which is lower than the perplexity achieved by <a href="https://web.stanford.edu/class/cs224n/reports/2737434.pdf">similar models</a> used for text generation.</p>
+</li>
+</ul>
+<ul>
+<li>Grammatically our model is able to:<ul>
+<li>Open, close quotations</li>
+<li>Sentence length is similar to the median sentence length of the dataset. We will use the median as there is a large number of empty sentences (between paragraphs, separating chapters, after a title), which can skew our data. See histogram below.</li>
+<li>Create paragraphs</li>
+</ul>
+</li>
+</ul>
 
 </div>
 </div>
@@ -11829,40 +11855,34 @@ div#notebook {
 <p>To train our model we will use the text from his most famous novel (Don Quixote) and other <a href="http://www.gutenberg.org/cache/epub/14420/pg14420.txt">less known</a> like Lady Cornelia, The Deceitful Marriage, The Little Gipsy Girl, etc. Also, we will not include any Plays, e.g. <a href="https://en.wikipedia.org/wiki/Miguel_de_Cervantes#La_Numancia">Numancia</a>, to train our model as it’s writing style differs from the novels and we want the generated text to follow the structure of a novel. All the novels are no longer protected under copyright and thanks to the <a href="https://www.gutenberg.org/">Gutenberg Project</a>, we are able to access all the text of <a href="https://www.gutenberg.org/ebooks/author/505">these books</a>.</p>
 <p>Even though Miguel de Cervantes native language was Spanish, the text used to train our model will be in English. This is to make it easier for the reader to understand the input and output of our model.</p>
 <p>Our Dataset is small as it is composed of only 2 files - Don Quixote and Exemplary Novels with a total size of 3.4 MB. Bigger datasets work better when training an RNN but for our case that is very specific it will be enough. Some additional information of the contents of the files below:</p>
-<p><table>
-  <tr>
-    <td>**File**</td>
-    <td></td>
-    <td>**Totals**</td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>*Name*</td>
-    <td>*Size*</td>
-    <td>*Pages*</td>
-    <td>*Lines*</td>
-    <td>*Words*</td>
-    <td>*Unique Words*</td>
-  </tr>
-  <tr>
-    <td>DonQuixote.txt</td>
-    <td>2.3 MB</td>
-    <td>690</td>
-    <td>40,008</td>
-    <td>429,256</td>
-    <td>42154</td>
-  </tr>
-  <tr>
-    <td>ExemplaryNovels.txt</td>
-    <td>1.1 MB</td>
-    <td>303</td>
-    <td>17,572</td>
-    <td>189,037</td>
-    <td></td>
-  </tr>
-</table></p>
+<table>
+<thead><tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:center">Size</th>
+<th style="text-align:center">Pages</th>
+<th style="text-align:right">Lines</th>
+<th style="text-align:right">Words</th>
+<th style="text-align:right">Unique Words</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">DonQuixote.txt</td>
+<td style="text-align:center">2.3 MB</td>
+<td style="text-align:center">690</td>
+<td style="text-align:right">40,008</td>
+<td style="text-align:right">429,256</td>
+<td style="text-align:right">42,154</td>
+</tr>
+<tr>
+<td style="text-align:left">ExemplaryNovels.txt</td>
+<td style="text-align:center">1.1 MB</td>
+<td style="text-align:center">303</td>
+<td style="text-align:right">17,572</td>
+<td style="text-align:right">189,037</td>
+</tr>
+</tbody>
+</table>
 <ul>
 <li>Note: Values in the table above will change after preprocessing.</li>
 </ul>
@@ -11892,7 +11912,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -11900,10 +11920,35 @@ div#notebook {
 <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;dataset/DonQuixote.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset/ExemplaryNovels.txt&quot;</span><span class="p">]</span>
 
 <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</pre></div>
 
-<span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Exploring-our-Datasets">Exploring our Datasets<a class="anchor-link" href="#Exploring-our-Datasets">&#182;</a></h3><p>Lets extract text from our Datasets to get familiar with the data that we will be processing.</p>
+<p>We can see that our sentences are formed of 13 / 14 words. Paragraphs contain 5 or more sentences.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">file_contents</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">file_contents</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">+=</span> <span class="n">file_contents</span>
 </pre></div>
 
 </div>
@@ -11913,20 +11958,155 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Sample text of DonQuixote.txt</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">file_contents</span><span class="p">[</span><span class="mi">1000</span><span class="p">:</span><span class="mi">2000</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre> sportsman. They will have it his surname was
+Quixada or Quesada (for here there is some difference of opinion among
+the authors who write on the subject), although from reasonable
+conjectures it seems plain that he was called Quexana. This, however, is
+of but little importance to our tale; it will be enough not to stray a
+hair&#39;s breadth from the truth in the telling of it.
+
+You must know, then, that the above-named gentleman whenever he was at
+leisure (which was mostly all the year round) gave himself up to reading
+books of chivalry with such ardour and avidity that he almost entirely
+neglected the pursuit of his field-sports, and even the management of his
+property; and to such a pitch did his eagerness and infatuation go that
+he sold many an acre of tillageland to buy books of chivalry to read, and
+brought home as many of them as he could get. But of all there were none
+he liked so well as those of the famous Feliciano de Silva&#39;s composition,
+for their lucidity of style and complica
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">file_contents</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filenames</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">file_contents</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    
+<span class="n">text</span> <span class="o">+=</span> <span class="n">file_contents</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Sample text of ExemplaryNovels.txt</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">file_contents</span><span class="p">[</span><span class="mi">3500</span><span class="p">:</span><span class="mi">4500</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>t all the pains they took for that
+purpose proved vain, and the wishes they had felt on the subject
+gradually diminished, as the attempt appeared more and more hopeless.
+Thus, devoted to their studies, and varying these with such amusements
+as are permitted to their age, the young men passed a life as cheerful
+as it was honourable, rarely going out at night, but when they did so,
+it was always together and well armed.
+
+One evening, however, when Don Juan was preparing to go out, Don
+Antonio expressed his desire to remain at home for a short time, to
+repeat certain orisons: but he requested Don Juan to go without him, and
+promised to follow him.
+
+&#34;Why should I go out to wait for you?&#34; said Don Juan. &#34;I will stay; if
+you do not go out at all to-night, it will be of very little
+consequence.&#34; &#34;By no means shall you stay,&#34; returned Don Antonio: &#34;go
+and take the air; I will be with you almost immediately, if you take the
+usual way.&#34;
+
+&#34;Well, do as you please,&#34; said Don Juan: &#34;if you come you 
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Statistics-of-our-Dataset">Statistics of our Dataset<a class="anchor-link" href="#Statistics-of-our-Dataset">&#182;</a></h3><p>As explained in the Metrics section, we can see that there is a large number of empty sentences in our dataset.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Preparing data to do some stats</span>
+<span class="n">chapters</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">sentence_count_chapter</span> <span class="o">=</span> <span class="p">[</span><span class="n">chapter</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">chapter</span> <span class="ow">in</span> <span class="n">chapters</span><span class="p">]</span>
+<span class="n">sentences</span> <span class="o">=</span> <span class="p">[</span><span class="n">sentence</span> <span class="k">for</span> <span class="n">chapter</span> <span class="ow">in</span> <span class="n">chapters</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">chapter</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+<span class="n">word_count_sentence</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset Stats&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unique words: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">({</span><span class="n">word</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()})))</span>
-<span class="n">chapters</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of chapters: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chapters</span><span class="p">)))</span>
-<span class="n">sentence_count_chapter</span> <span class="o">=</span> <span class="p">[</span><span class="n">chapter</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">chapter</span> <span class="ow">in</span> <span class="n">chapters</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average number of sentences in each chapters: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">sentence_count_chapter</span><span class="p">)))</span>
-
-<span class="n">sentences</span> <span class="o">=</span> <span class="p">[</span><span class="n">sentence</span> <span class="k">for</span> <span class="n">chapter</span> <span class="ow">in</span> <span class="n">chapters</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">chapter</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of lines: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)))</span>
-<span class="n">word_count_sentence</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average number of words in each line: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">word_count_sentence</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Median number of words in each line: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">word_count_sentence</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average number of words in each line: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">word_count_sentence</span><span class="p">)))</span>
 </pre></div>
 
 </div>
@@ -11946,9 +12126,161 @@ Unique words: 39229
 Number of chapters: 135
 Average number of sentences in each chapters: 392.7925925925926
 Number of lines: 53162
+Median number of words in each line: 13.0
 Average number of words in each line: 10.975941461946503
 </pre>
 </div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">word_count_sentence</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Number of words per sentence&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYcAAAEICAYAAAC0+DhzAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAALEgAACxIB0t1+/AAAGRNJREFUeJzt3X+0XWV95/H3R6KIIgiSphCQYI1tgemoRIpKHWZQiegY
+p1OZuFRiRagj/upqbUPbpW2VVZyOVplRKuMPwFox9UfNKtKKKDrWARotyi8pUcAQA6SgBrXFgt/5
+Yz/Rzdn3JuGem3tuyPu11lnnOc/ez97fs8+553P23uecm6pCkqS+h0y6AEnS/GM4SJIGDAdJ0oDh
+IEkaMBwkSQOGgyRpwHDQrEtyXpK3TGjdSfKBJN9JcuUkaujVUkkeP8kapJkyHHYDSW5OckeSR/b6
+XpHksgmWtbMcCzwLOLiqjp50MbuDJEtaEC6YdC2aPYbD7mMP4HWTLuKBSrLHAxxyKHBzVf1gZ9Qz
+lfn6ojhf69KuwXDYffwp8NtJHj06Yap3fkkuS/KK1n5Zkr9P8mdJvpvkm0me1vo3tL2SVSOLPSDJ
+JUnuTvL5JIf2lv0LbdpdSW5IclJv2nlJzknyqSQ/AP7jFPUelGRtG78+yamt/xTgvcBTk3w/yR9N
+MfaWJEe19ovb/T5i6/gkf93aeyZ5R5Jvt8s7kuzZph2X5NYkv5vkNuADrf8NSTa1+V8+st4Tk1zX
+tsfGJL891YPU29b/O8n3knw9yfG96fsmeV9bz8Ykb9kaoCOP053AH06x/KOTrEuyJcntSd7em3ZM
+ki+1x/irSY7rTbssyZvb8u9O8ukkB7TJX2jX323b/altzMuTXN8O8f3dyHOgkrwyyY1tfe9Kkt70
+U9vYu9t2e3Lvsf9Yks1Jbkry2qm2o2ZBVXl5kF+Am4FnAh8H3tL6XgFc1tpLgAIW9MZcBryitV8G
+3Av8Ot0eyFuAbwHvAvYEng3cDezd5j+v3X5Gm/5O4Itt2iOBDW1ZC4AnAf8MHN4b+z3g6XRvXh4+
+xf35AvBu4OHAE4HNwH/q1frFbWyLC4Dfau1zgW8A/7037Tdb+4+By4GfARYCXwLe3KYd17bHW9v9
+2wtYDtwOHNnu41+2bfr4NmYT8CutvR/w5Gnq27qtfxN4KPDf2vbYv03/BPCeto6fAa4EfmNk7Gva
+tt1riuX/P+Clrb03cExrLwbuBE5s2/1Z7fbC3vPhG8AT2v29DDhrG8+fFcB64BdbLX8AfKk3vYC/
+AR4NPLY9hsvbtBcCG4GnAAEeT7dH+BDgy8AbgYcBjwO+CZww6b+xB+Nl4gV4mYMH+afhcGR7oVnI
+Aw+HG3vT/l2bf1Gv707gia19HnBhb9rewH3AIe3F7v+O1Pce4E29sRds474c0pb1qF7fnwDn9Wrd
+VjicAqxt7evbdriw3b6F9qLdXghP7I07ge5wFXTh8CN6wQW8f+uLZbv9BO4fDt8CfgPYZzuP1cuA
+bwPp9V0JvBRYBNxD70UfeBHwud7Yb21n+V8A/gg4YKT/d4EPjvT9HbCq93z4g960VwF/u43nz8XA
+Kb3bDwF+CBzabhdwbG/6GmB1b72vm6L2Xx69f8AZwAcm/Tf2YLx4WGk3UlXX0L1bWz2D4bf32v/S
+ljfat3fv9obeer8P3AUcRPcO8JfboYTvJvku8GLgZ6caO4WDgLuq6u5e3y1073x3xOeBX0lyIN1e
+0Brg6UmWAPsCV/XWc8vIOg7q3d5cVf86UteGkfn7/ivdu/Jb2mG2p26jxo3VXvlG1n0o3d7Ept62
+ew/dHsRW29p20IXjE4CvJ/mHJM9r/YcCLxx5XI4FDuyNva3X/iH3f7xHHQq8s7esu+j2AvqP03TL
+O4QunKda5kEjNf4eXWhqlnnCavfzJuArwNt6fVtP3j4C2NLa/RfrmThkayPJ3sD+dO+INwCfr6pn
+bWPstn4q+NvA/kke1QuIx9Idhtiuqlqf5Id0h16+UFVb2nmD0+j2OH7cW8+hwLW9dXx7GzVuonef
+2/z99f4DsCLJQ4FX04VSf/6+xUnSC4jHAmvptt09dO/6753uLk7Tv7WOG4EXJXkI8KvAR5M8pi37
+g1V16rbGP4B1bgDOrKoPzWB5G4Cfm6b/pqpaOoNl6gFyz2E3U1XrgY8Ar+31baZ7cX1Jkj3aydSp
+/jgfiBOTHJvkYcCbgcuragPdnssTkrw0yUPb5SlJfnEH699Ad/z/T5I8PMkv0b0b/osHUNvn6V6g
+P99uXzZyG+DDwB8kWdhOvL5xO+tYA7wsyeFJHkEXwgAkeVg7+b1vVf0bXQD/eLoF0e0JvLZtmxfS
+Hbf/VFVtAj4NvC3JPkkekuTnkvyHHb3jSV6SZGELwe+27h+3+/afk5zQngMPbyfeD96BxW5uy3hc
+r+/PgTPy05P9+7b7siPeS/fhiaPSeXw7mX0lcHe6DwLs1eo8MslTdnC5egAMh93TH9Od0Ow7FXgD
+3bmDI+hegMfxl3QvkHcBRwEvAWjv9p8NrKR7J34bPz2xu6NeRHec+9t0J2jfVFWfeQDjPw88ip9+
+ymb0NnQn3dcBXwOuptvbmvaLfVV1MfAO4LN0J2I/OzLLS4Gbk2wBXkl3KG06VwBL6U7Unwn8WlXd
+2aadTHcy9jrgO8BHuf+hn+1ZDlyb5Pt0HxRYWVX/0kJ3Bd1hms1079LfwA68RlTVD1udf98O9xxT
+VZ+ge1wvbPf5GuA5O1JgVf1VW95f0n2w4a/pTsjfBzyP7kMIN9Ftn/fSHQ7ULMv9D21KmqQkL6P7
+IMCxk65Fuzf3HCRJA4aDJGnAw0qSpAH3HCRJA7vs9xwOOOCAWrJkyaTLkKRdype//OV/rqqF25tv
+lw2HJUuWsG7dukmXIUm7lCSj396fkoeVJEkDhoMkacBwkCQNGA6SpAHDQZI0YDhIkgYMB0nSgOEg
+SRowHCRJA7vsN6QlTcaS1Rf9pH3zWc+dYCXamdxzkCQNGA6SpAHDQZI0YDhIkga2Gw5J3p/kjiTX
+9Pr2T3JJkhvb9X69aWckWZ/khiQn9PqPSnJ1m3Z2krT+PZN8pPVfkWTJ7N5FSdIDtSN7DucBy0f6
+VgOXVtVS4NJ2mySHAyuBI9qYdyfZo405BzgVWNouW5d5CvCdqno88GfAW2d6ZyRJs2O74VBVXwDu
+GuleAZzf2ucDL+j1X1hV91TVTcB64OgkBwL7VNXl1f3T6gtGxmxd1keB47fuVUiSJmOm5xwWVdWm
+1r4NWNTai4ENvflubX2LW3u0/35jqupe4HvAY6ZaaZLTkqxLsm7z5s0zLF2StD1jn5BuewI1C7Xs
+yLrOraplVbVs4cLt/gtUSdIMzTQcbm+HimjXd7T+jcAhvfkObn0bW3u0/35jkiwA9gXunGFdkqRZ
+MNNwWAusau1VwCd7/SvbJ5AOozvxfGU7BLUlyTHtfMLJI2O2LuvXgM+2vRFJ0oRs97eVknwYOA44
+IMmtwJuAs4A1SU4BbgFOAqiqa5OsAa4D7gVOr6r72qJeRffJp72Ai9sF4H3AB5OspzvxvXJW7pkk
+aca2Gw5V9aJpJh0/zfxnAmdO0b8OOHKK/n8FXri9OiRJc8dvSEuSBgwHSdKA4SBJGjAcJEkDhoMk
+acBwkCQNGA6SpIHtfs9BkmbLktUX/aR981nPnWAl2h73HCRJA4aDJGnAcJAkDRgOkqQBw0GSNGA4
+SJIGDAdJ0oDhIEkaMBwkSQOGgyRpwHCQJA0YDpKkAcNBkjRgOEiSBgwHSdKA4SBJGjAcJEkDhoMk
+acBwkCQNGA6SpAHDQZI0YDhIkgYMB0nSwFjhkOQ3k1yb5JokH07y8CT7J7kkyY3ter/e/GckWZ/k
+hiQn9PqPSnJ1m3Z2koxTlyRpPDMOhySLgdcCy6rqSGAPYCWwGri0qpYCl7bbJDm8TT8CWA68O8ke
+bXHnAKcCS9tl+UzrkiSNb9zDSguAvZIsAB4BfBtYAZzfpp8PvKC1VwAXVtU9VXUTsB44OsmBwD5V
+dXlVFXBBb4wkaQJmHA5VtRH4n8C3gE3A96rq08CiqtrUZrsNWNTai4ENvUXc2voWt/Zo/0CS05Ks
+S7Ju8+bNMy1dkrQd4xxW2o9ub+Aw4CDgkUle0p+n7QnUWBXef3nnVtWyqlq2cOHC2VqsJGnEOIeV
+ngncVFWbq+rfgI8DTwNub4eKaNd3tPk3Aof0xh/c+ja29mi/JGlCxgmHbwHHJHlE+3TR8cD1wFpg
+VZtnFfDJ1l4LrEyyZ5LD6E48X9kOQW1Jckxbzsm9MZKkCVgw04FVdUWSjwJfAe4F/hE4F9gbWJPk
+FOAW4KQ2/7VJ1gDXtflPr6r72uJeBZwH7AVc3C6SZtmS1RcBcPNZz51wJZrvZhwOAFX1JuBNI933
+0O1FTDX/mcCZU/SvA44cpxZJ0uzxG9KSpAHDQZI0YDhIkgYMB0nSgOEgSRowHCRJA4aDJGnAcJAk
+DRgOkqQBw0GSNGA4SJIGDAdJ0oDhIEkaMBwkSQOGgyRpwHCQJA0YDpKkAcNBkjRgOEiSBgwHSdKA
+4SBJGjAcJEkDhoMkacBwkCQNGA6SpAHDQZI0YDhIkgYMB0nSgOEgSRowHCRJA2OFQ5JHJ/lokq8n
+uT7JU5Psn+SSJDe26/1685+RZH2SG5Kc0Os/KsnVbdrZSTJOXZKk8Yy75/BO4G+r6heAfw9cD6wG
+Lq2qpcCl7TZJDgdWAkcAy4F3J9mjLecc4FRgabssH7MuSdIYZhwOSfYFngG8D6CqflRV3wVWAOe3
+2c4HXtDaK4ALq+qeqroJWA8cneRAYJ+quryqCrigN0aSNAHj7DkcBmwGPpDkH5O8N8kjgUVVtanN
+cxuwqLUXAxt6429tfYtbe7RfkjQh44TDAuDJwDlV9STgB7RDSFu1PYEaYx33k+S0JOuSrNu8efNs
+LVaSNGKccLgVuLWqrmi3P0oXFre3Q0W06zva9I3AIb3xB7e+ja092j9QVedW1bKqWrZw4cIxSpck
+bcuMw6GqbgM2JPn51nU8cB2wFljV+lYBn2zttcDKJHsmOYzuxPOV7RDUliTHtE8pndwbs1MsWX3R
+Ty6SpKEFY45/DfChJA8Dvgn8Ol3grElyCnALcBJAVV2bZA1dgNwLnF5V97XlvAo4D9gLuLhdJEkT
+MlY4VNVVwLIpJh0/zfxnAmdO0b8OOHKcWiRJs8dvSEvaZXg4eO4YDpKkAcNBkjRgOEiSBgwHSdKA
+4SBJGjAcJEkDhoMkacBwkCQNGA6SpAHDQZI0YDhIkgYMB0nSgOEgSRowHCRJA4aDJGnAcJAkDRgO
+kqQBw0GSNGA4SJIGDAdJ0oDhIEkaMBwkSQOGgyRpwHCQJA0YDpKkAcNBkjRgOEiSBgwHSdKA4SBJ
+GjAcJEkDY4dDkj2S/GOSv2m3909ySZIb2/V+vXnPSLI+yQ1JTuj1H5Xk6jbt7CQZty5J0szNxp7D
+64Dre7dXA5dW1VLg0nabJIcDK4EjgOXAu5Ps0cacA5wKLG2X5bNQlyRphsYKhyQHA88F3tvrXgGc
+39rnAy/o9V9YVfdU1U3AeuDoJAcC+1TV5VVVwAW9MZKkCRh3z+EdwO8AP+71LaqqTa19G7CotRcD
+G3rz3dr6Frf2aP9AktOSrEuybvPmzWOWLkmazoKZDkzyPOCOqvpykuOmmqeqKknNdB1TLO9c4FyA
+ZcuWzdpypV3FktUX/aR981nPnWAlerCbcTgATween+RE4OHAPkn+Arg9yYFVtakdMrqjzb8ROKQ3
+/uDWt7G1R/slSRMy48NKVXVGVR1cVUvoTjR/tqpeAqwFVrXZVgGfbO21wMokeyY5jO7E85XtENSW
+JMe0Tymd3BsjSZqAcfYcpnMWsCbJKcAtwEkAVXVtkjXAdcC9wOlVdV8b8yrgPGAv4OJ2kSRNyKyE
+Q1VdBlzW2ncCx08z35nAmVP0rwOOnI1aJEnj8xvSkqQBw0GSNGA4SJIGDAdJ0oDhIEkaMBwkSQOG
+gyRpwHCQJA0YDpKkAcNBkjRgOEiSBgwHSdKA4SBJGjAcJEkDhoMkacBwkCQNGA6SpAHDQZI0YDhI
+kgYMB0nSgOEgSRowHCRJA4aDJGnAcJAkDRgOkqQBw0GSNGA4SJIGFky6AEmaS0tWX/ST9s1nPXeC
+lcxv7jlIkgYMB0nSgOEgSRqYcTgkOSTJ55Jcl+TaJK9r/fsnuSTJje16v96YM5KsT3JDkhN6/Ucl
+ubpNOztJxrtbkqRxjLPncC/wW1V1OHAMcHqSw4HVwKVVtRS4tN2mTVsJHAEsB96dZI+2rHOAU4Gl
+7bJ8jLokSWOacThU1aaq+kpr3w1cDywGVgDnt9nOB17Q2iuAC6vqnqq6CVgPHJ3kQGCfqrq8qgq4
+oDdGkjQBs3LOIckS4EnAFcCiqtrUJt0GLGrtxcCG3rBbW9/i1h7tn2o9pyVZl2Td5s2bZ6N0SdIU
+xg6HJHsDHwNeX1Vb+tPankCNu47e8s6tqmVVtWzhwoWztVhJ0oixwiHJQ+mC4UNV9fHWfXs7VES7
+vqP1bwQO6Q0/uPVtbO3RfknShIzzaaUA7wOur6q39yatBVa19irgk73+lUn2THIY3YnnK9shqC1J
+jmnLPLk3RpI0AeP8fMbTgZcCVye5qvX9HnAWsCbJKcAtwEkAVXVtkjXAdXSfdDq9qu5r414FnAfs
+BVzcLpKkCZlxOFTVF4Hpvo9w/DRjzgTOnKJ/HXDkTGuRJM0uvyEtSRrwV1mlOeavgmpX4J6DJGnA
+cJAkDRgOkqQBw0GSNGA4SJIGDAdJ0oDhIEkaMBwkSQOGgyRpwHCQJA0YDpKkAcNBkjRgOEiSBgwH
+SdKA4SBJGjAcJEkDhoMkacBwkCQN+G9CtcvZ+m825/pfbPrvPbU7MRxmYFIvTru6+fDiOh9qkHYF
+HlbSA7Jk9UX3e4GVdje7y9+A4TDHdpcnlqRdm+GwGzKgJG2P4bAL8UVd0lwxHCRJA4aDJGnAcJAk
+DRgOkqQBw0GSNDBvwiHJ8iQ3JFmfZPWk65Gk3dm8CIckewDvAp4DHA68KMnhk61KkmbXrvRx9HkR
+DsDRwPqq+mZV/Qi4EFgx4ZokabeVqpp0DST5NWB5Vb2i3X4p8MtV9eqR+U4DTms3fx64YYarPAD4
+5xmOnQvWNx7rG998r9H6Zu7Qqlq4vZl2qV9lrapzgXPHXU6SdVW1bBZK2imsbzzWN775XqP17Xzz
+5bDSRuCQ3u2DW58kaQLmSzj8A7A0yWFJHgasBNZOuCZJ2m3Ni8NKVXVvklcDfwfsAby/qq7diasc
++9DUTmZ947G+8c33Gq1vJ5sXJ6QlSfPLfDmsJEmaRwwHSdLAgzoctveTHOmc3aZ/LcmT57C2Q5J8
+Lsl1Sa5N8rop5jkuyfeSXNUub5yr+tr6b05ydVv3uimmT3L7/Xxvu1yVZEuS14/MM6fbL8n7k9yR
+5Jpe3/5JLklyY7veb5qxO/3nY6ap70+TfL09fp9I8uhpxm7zubCTa/zDJBt7j+OJ04yd1Db8SK+2
+m5NcNc3YOdmGs6aqHpQXuhPb3wAeBzwM+Cpw+Mg8JwIXAwGOAa6Yw/oOBJ7c2o8C/mmK+o4D/maC
+2/Bm4IBtTJ/Y9pvisb6N7ss9E9t+wDOAJwPX9Pr+B7C6tVcDb52m/m0+V3difc8GFrT2W6eqb0ee
+Czu5xj8EfnsHngMT2YYj098GvHGS23C2Lg/mPYcd+UmOFcAF1bkceHSSA+eiuKraVFVfae27geuB
+xXOx7lk0se034njgG1V1ywTW/RNV9QXgrpHuFcD5rX0+8IIphs7Jz8dMVV9Vfbqq7m03L6f7jtHE
+TLMNd8TEtuFWSQKcBHx4ttc7CQ/mcFgMbOjdvpXhi++OzLPTJVkCPAm4YorJT2u7/BcnOWJOC4MC
+PpPky+2nS0bNi+1H972Y6f4gJ7n9ABZV1abWvg1YNMU882U7vpxuT3Aq23su7GyvaY/j+6c5NDcf
+tuGvALdX1Y3TTJ/0NnxAHszhsEtIsjfwMeD1VbVlZPJXgMdW1S8B/wv46zku79iqeiLdr+WenuQZ
+c7z+7Wpfmnw+8FdTTJ709ruf6o4tzMvPjif5feBe4EPTzDLJ58I5dIeLnghsojt0Mx+9iG3vNcz7
+v6e+B3M47MhPckz0ZzuSPJQuGD5UVR8fnV5VW6rq+639KeChSQ6Yq/qqamO7vgP4BN2ue998+NmT
+5wBfqarbRydMevs1t2891Nau75hinkk/D18GPA94cQuwgR14Luw0VXV7Vd1XVT8G/s806570NlwA
+/CrwkenmmeQ2nIkHczjsyE9yrAVObp+6OQb4Xu8QwE7Vjk++D7i+qt4+zTw/2+YjydF0j9edc1Tf
+I5M8amub7sTlNSOzTWz79Uz7bm2S269nLbCqtVcBn5xinon9fEyS5cDvAM+vqh9OM8+OPBd2Zo39
+81j/ZZp1T/oneJ4JfL2qbp1q4qS34YxM+oz4zrzQfZrmn+g+xfD7re+VwCtbO3T/ZOgbwNXAsjms
+7Vi6QwxfA65qlxNH6ns1cC3dJy8uB542h/U9rq33q62GebX92vofSfdiv2+vb2Lbjy6kNgH/RnfM
++xTgMcClwI3AZ4D927wHAZ/a1nN1jupbT3esfutz8M9H65vuuTCHNX6wPb++RveCf+B82oat/7yt
+z7vevBPZhrN18eczJEkDD+bDSpKkGTIcJEkDhoMkacBwkCQNGA6SpAHDQZI0YDhIkgb+P7XIv9oV
+/V0FAAAAAElFTkSuQmCC
+"
+>
+</div>
+
 </div>
 
 </div>
@@ -12018,7 +12350,7 @@ Average number of words in each line: 10.975941461946503
 <li>Dash ( -- )</li>
 <li>Return ( \n )</li>
 </ul>
-<p>This dictionary will be used to token the symbols and add the delimiter (space) around it.  This separates the symbols as it's own word, making it easier for the neural network to predict on the next word. Make sure you don't use a token that could be confused as a word. Instead of using the token "dash", try using something like "||dash||".</p>
+<p>This dictionary will be used to token the symbols and add the delimiter (space) around it.  This separates the symbols as it's own word, making it easier for the neural network to predict on the next word.</p>
 
 </div>
 </div>
@@ -12183,6 +12515,19 @@ Default GPU Device: /gpu:0
 <li>build_nn: Apply embedding to input data using your get_embed function. Builds RNN using cell and the build_rnn function. Finally, it applies a <a href="https://www.tensorflow.org/api_docs/python/tf/contrib/layers/fully_connected">fully connected layer</a> with a linear activation.</li>
 <li>get_batches: Creates a generator that returns batches of data used during training</li>
 </ul>
+<h4 id="Loss-Function">Loss Function<a class="anchor-link" href="#Loss-Function">&#182;</a></h4><p>To calculate the loss of our Neural Network, we are using <a href="https://www.tensorflow.org/api_docs/python/tf/contrib/seq2seq/sequence_loss">sequence_loss</a> as our loss function.</p>
+<p>We want to minimize the average negative log probability of the target words:</p>
+$$loss = -\frac{1}{N}\sum_{i=1}^{N} \ln p_{\text{target}_i}$$<p>The typical measure reported in the papers is average per-word perplexity (often just called perplexity), which is equal to</p>
+$$e^{-\frac{1}{N}\sum_{i=1}^{N} \ln p_{\text{target}_i}} = e^{\text{loss}}$$<p>and we will monitor its value throughout the training process.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 
 </div>
 </div>
@@ -13293,19 +13638,40 @@ Epoch 509 Batch   31/141   train_loss = 1.240
 </tbody>
 </table>
 <p>For a detailed view of the training loss, checkout the <a href="./logs/">training logs</a> included with the project.</p>
+<p>Our models 0004 and 0007 are the best performing when trained with our dataset.</p>
+<p>How does our model performs when compared to our initial expectations (metrics/benchmark)?</p>
+<ul>
+<li>Our benchmark was to create a model that achieves a perplexity of less than 3. Our model is achieving a perplexity of less than 1. Which means, it has a high likelihood of choosing the correct word.</li>
+<li>The paragraph structure generated by our model is similar to the structure from our dataset.<ul>
+<li>The sentences in the paragraph have betwen 10 and 15 words.</li>
+<li>The paragraphs are formed of 5 or more lines. </li>
+</ul>
+</li>
+</ul>
+<p><em>Observations:</em></p>
+<ul>
+<li>In order to generate better quality of text, we  need a large text corpus and in this project we are limited by the amount of text we can use as an input. Saying that, the model is generating text that looks similar to the original text.</li>
+<li>The same algorithm can be used to generate text for different subjects. For example, the same algorithm can be trained to generate text for <a href="https://en.wikipedia.org/wiki/Barack_Obama">Barack Obama</a>. There is a lot more text available for Obama (<a href="https://www.amazon.co.uk/Barack-Obama/e/B001H6OA8E">books</a>, <a href="http://obamaspeeches.com/">speeches</a>)</li>
+<li>A 3 layer RNN takes a long time to train, it might be possible to achieve better results with it but it will need to be trained longer.</li>
+</ul>
 <h3 id="Training-Loss">Training Loss<a class="anchor-link" href="#Training-Loss">&#182;</a></h3><p>We can see that a learning rate of 0.01 is too large to train our Neural Network. When we trained it with 0.01, we were never able to achieve a train loss &lt; 3. Another indicator of this is that the learning plateaus in both runs (0001, 0003); in <em>0001</em> it plateaus at around epoch 100 and in <em>0003</em> at around epoch 180.</p>
-<p>The training loss improved when we use a learning rate of 0.001. The lower learning rate improves our Neural network performance by -2.0. As the training is not plateauing, we are also able to train it longer. This is why we increase the epochs of run <em>0002</em> to 500.</p>
+<p>The training loss improved when we use a learning rate of 0.001. The lower learning rate improves our Neural network performance and we are getting closer to a perplexity of 1. Remember that the lower our perplexity, the better our model is at predicting the next work.</p>
+<p>As the training is not plateauing, we are also able to train it longer. This is why we increase the epochs of run <em>0002</em> to 500.</p>
 <h3 id="Sequence-Length">Sequence Length<a class="anchor-link" href="#Sequence-Length">&#182;</a></h3><p>Our basic RNN was trained with a sequence length of 5. The sequence length, is the number of words to be included in every sequence.</p>
 <p>We can see an improvement when increasing the sequence length to 10. This means that our RNN will use a longer sequence to train our Neural Network. Which ends up improving significantly the quality of text generated by our network.</p>
 <p>With a sequence length of 5, our text didn't made much sense, the sentences are short and the paragraphs are not well structured.</p>
 <p>When using a model trainer with sequence length of 10, we can notice that the text makes much more sense, and the quality of the sentences and paragraphs improves significantly.</p>
 <h3 id="Train-some-more">Train some more<a class="anchor-link" href="#Train-some-more">&#182;</a></h3><p>Our best result in the the first 6 runs was run <em>0004</em>. If we train our network longer with the same parameters, we achieve a train loss of less than 1.</p>
-<h2 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h2><p>Even though our train loss for the last run is less than 1, we can see in the samples below that the text generated by <em>run 0004</em> and <em>run 0007</em> models are similar is several ways:</p>
+<hr>
+<h2 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h2><p>Based on the results, we can see that RNNs are very effective when understanding sequence of text and can be used to generate text.</p>
+<p>Our best performing RNN consists of 2 RNN layers of 256 in size. We added some dropout to prevent overfitting and used <a href="https://www.tensorflow.org/api_docs/python/tf/train/AdamOptimizer">Adam</a> to optimise our model.</p>
+<p>Generating text is a hard problem to solve in Machine Learning. It takes  a long time to train a simple model and the larger the input the longer it will take to train the model properly. In our training, the models took close to an hour to train.</p>
+<p>Even though our train loss for the last run is less than 1, we can see in the samples below that the text generated by <em>run 0004</em> and <em>run 0007</em> models are similar in several ways, as you would expect when both models have a perplexity that is close to 1:</p>
 <ul>
 <li>They are both able to open and close quotations</li>
 <li>The text makes more sense when compared with <em>run 0001</em>, which is expected as the sequence length (10) used to train both models is longer than <em>run 0001</em> (5)</li>
-<li>Paraghaps are well formed.</li>
-<li>Sentence length is similar and close to the average sentence length.</li>
+<li>Paragraphs are well formed.</li>
+<li>Sentence length is similar and close to the median sentence length (13).</li>
 </ul>
 <p>Text Samples:</p>
 <ul>
@@ -13315,6 +13681,11 @@ Epoch 509 Batch   31/141   train_loss = 1.240
 <li>Run 0007:
   Quixote or cost him his squire, unless indeed his wife might follow him
   Don Quixote bade Sancho he settled three days with open his heart in fixing his affections should comply with Preciosa</li>
+</ul>
+<h3 id="Potential-Improvements">Potential Improvements<a class="anchor-link" href="#Potential-Improvements">&#182;</a></h3><p>There are two ways which we could improve the results of our model:</p>
+<ul>
+<li>Larger text corpus. We can search for more Cervantes novels available in English or we can train our model to learn Spanish, as it would be more probable to find the novels in Spanish than English.</li>
+<li>Train our 3 layer, 20 sequence length RNN further. As our model is bigger, we could train it longer and potentially could have better results.</li>
 </ul>
 <hr>
 <p>Below, we will generate some text to check our results.</p>
@@ -13343,11 +13714,12 @@ Epoch 509 Batch   31/141   train_loss = 1.240
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
 
 <span class="n">_</span><span class="p">,</span> <span class="n">vocab_to_int</span><span class="p">,</span> <span class="n">int_to_vocab</span><span class="p">,</span> <span class="n">token_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;preprocess.p&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
 <span class="n">seq_length</span><span class="p">,</span> <span class="n">meta_dir</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;params-</span><span class="si">{}</span><span class="s1">.p&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
@@ -13375,7 +13747,7 @@ Epoch 509 Batch   31/141   train_loss = 1.240
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">pick_word</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">int_to_vocab</span><span class="p">):</span>
@@ -13462,7 +13834,7 @@ Epoch 509 Batch   31/141   train_loss = 1.240
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Run 0001</span>
 
-<span class="n">print_text_for</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">initial_word</span><span class="o">=</span><span class="s2">&quot;Quixote&quot;</span><span class="p">,</span> <span class="n">initial_epoch</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">text_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">get_text_for</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">initial_word</span><span class="o">=</span><span class="s2">&quot;Quixote&quot;</span><span class="p">,</span> <span class="n">initial_epoch</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">text_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 </pre></div>
 
 </div>
